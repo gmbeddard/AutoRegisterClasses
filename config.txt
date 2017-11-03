@@ -1,0 +1,10 @@
+<ID Number>
+<password>
+<alt pin>
+<term ID>
+<crn 1>
+<crn 2>
+<crn 3>
+<crn 4>
+<crn 5>
+<crn n>
