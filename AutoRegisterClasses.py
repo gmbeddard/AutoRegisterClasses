@@ -13,6 +13,7 @@ class RegistrationException(Exception):
     def __init__(self,output):
         self.output = str(output)
         self.datetime = str(datetime.datetime.today())
+        printMsg(self)
         
 class AutoRegisterClasses:
     def __init__(self):
