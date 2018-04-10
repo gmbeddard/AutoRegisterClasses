@@ -9,6 +9,11 @@ Mechanize
 
 ## Setup:
 in cmd/terminal
-'''
+```sh
 pip install mechanize=="0.2.5"
-'''
+```
+
+## Running:
+```sh
+python AutoRegisterClasses.py
+```
