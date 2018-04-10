@@ -7,7 +7,12 @@ import logging
 import time
 import sys
 import traceback
+import os
 
+DELETE_OLD_LOGS = True
+
+if DELETE_OLD_LOGS and os.path.isfile("AutoReg-Errors.html"):
+    os.remove("AutoReg-Errors.html")
         
 class RegistrationException(Exception):
     def __init__(self,output):
@@ -72,7 +77,9 @@ class AutoRegisterClasses:
         br[ "PIN" ] = self.Passwd
         res = br.submit()
 
+        print "\tStatus:: SUBMITTED Login."
         self.checkForRegistrationException()
+        print "\tStatus:: Login Successful."
 
         # Navigate down chain some
         for link in br.links(url_regex="Stu"):
@@ -86,16 +93,16 @@ class AutoRegisterClasses:
         br.select_form( nr=1 )
         br[ "term_in" ] = [self.semTrm]
         res = br.submit()
-        
-        print "\tSUBMITTED term:",br.geturl()
-        
+
+        print "\tStatus:: SUBMITTED term ID."
+
         br.select_form( nr=1 )
         br[ "pin" ] = self.altPin
         res = br.submit()
         
-        print "\tSUBMITTED alt-pin:",br.geturl()
-        
+        print "\tStatus:: SUBMITTED alt-pin."
         self.checkForRegistrationException()
+        print "\tStatus:: alt-pin successful."
 
     def reloadPg(self):
         
@@ -117,14 +124,25 @@ class AutoRegisterClasses:
         # submit crns
         br.submit(nr=0)
 
+        print "\tStatus:: SUBMITTED CRNs."
         self.checkForRegistrationException()
+        print "\tStatus:: CRNs successful."
         
         self.endTime()
+
+        SUCCESS = "\t\tCOMPLETE SUCCESS!!!"
+        print ""
+        print SUCCESS
+        print SUCCESS
+        print SUCCESS
+        print ""
 
     def endTime(self):
         self.end = time.time()
         return (self.end-self.start)
         
+
+
 import inspect
 def printMsg(e):
 ##        print "!!!!!!!!!"
@@ -139,45 +157,27 @@ def printMsg(e):
         logging.basicConfig(filename='AutoReg-Errors.html', level=logging.ERROR)
         logging.error(e.datetime)
         logging.error(e.output)
-        
-if __name__ == "__main__":
-    
-    a = AutoRegisterClasses()
-    a.setup()
-    a.begin()
-    attempts = 2
-    times = []
-    
-    for x in range(attempts):
-        print "--", x+1, "--------------------------------------------------------------------------------"
-        try:
-            a.startTime()
-            if x > 0:
-                a.reloadPg()
-                
-            a.register()
-            print "--"
-            print "Done!"
-        except RegistrationException as e:
-            printMsg(e)
-            
-        except Exception as e:
-            print "An error was thrown..."
-            print e
-            traceback.print_exc()
 
-        dt = a.endTime()
-        print "Time (seconds):", dt
-        times.append(dt)
+        CRN_ERR = "<ACRONYM title = \"Course Reference Number\">CRN</ACRONYM>"
+
+        ERROR_TYPES = ['DUPLICATE', 'NOT EXIST', 'Closed Section','Invalid login information']
+
+        ERR_COUNT = 0
         print ""
-    
-    print "\tAverage run time:", sum(times)/len(times)
-    
-    attempts = 2
+        for ERR in ERROR_TYPES:
+            #print ERR
+            if ERR in e.output:
+                print "\t\tERROR TYPE: %s" % ERR
+                ERR_COUNT+=1
+        print "\n\t\tTotal # Recognized Errors: %d\n" % ERR_COUNT
+        
+
+
+if __name__ == "__main__":
+
+    attempts = 3
     times = []
 
-    print "\n"
-    
     a = AutoRegisterClasses()
     a.setup()
     for x in range(attempts):
@@ -188,13 +188,21 @@ if __name__ == "__main__":
             a.register()
             print "--"
             print "Done!"
-        except RegistrationException as e:
-            printMsg(e)
+        except RegistrationException as re:
+            pass
             
+        except mechanize._form.ItemNotFoundError as e:
+            print "\tERR: An ItemNotFoundError was thrown."
+            print "\tERR: Please verify the correctness of your Term ID."
+            print "\t\tPlease review the following msg..."
+            print "\t\t" + str(e) + "\n"
+            pass
+
         except Exception as e:
-            print "An error was thrown..."
+            print "ERR: An unknown error was thrown..."
             print e
             traceback.print_exc()
+            pass
 
         dt = a.endTime()
         print "Time (seconds):", dt
