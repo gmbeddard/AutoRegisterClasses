@@ -23,7 +23,7 @@ class RegistrationException(Exception):
 class AutoRegisterClasses:
     def __init__(self):
 
-        self.baseLink = "https://banweb.cnu.edu:9997"
+        self.baseLink = "https://banweb.cnu.edu"#:9997"
 
         self.readFile()
 
@@ -70,7 +70,7 @@ class AutoRegisterClasses:
         br = self.br
         
         # authenticate
-        br.open(self.baseLink + "/bpdbdad/twbkwbis.P_ValLogin") 
+        br.open(self.baseLink + "/banweb/twbkwbis.P_ValLogin") 
         br.select_form( name="loginform" )
 
         br[ "sid" ] = self.userID
